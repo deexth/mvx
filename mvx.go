@@ -5,80 +5,49 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
-	"strings"
 )
 
 type Config struct {
 	HomeDir string
 }
 
-func parseArgs(args []string, cfg *Config) (string, string, error) {
+type paths struct {
+	src  Source
+	dest Dest
+}
+
+func (cfg *Config) parseArgs(args []string) (paths, error) {
 	if len(args) < 2 {
-		return "", "", errors.New("usage: mvx <source> <destination>")
+		return paths{}, errors.New("not enough arguments provided")
 	}
 
-	for i := range args {
-		if !strings.HasPrefix(args[i], "~") {
-			continue
-		}
-
-		args[i] = strings.Split(args[i], "~")[1]
-	}
-
-	src := filepath.Clean(args[0])
-	dest := filepath.Clean(args[1])
-
-	err := cfg.parseSrc(src)
+	src, err := cfg.handlerSource(args[0])
 	if err != nil {
-		return "", "", err
+		return paths{}, err
 	}
 
-	err = cfg.parseDest(dest)
+	dest, err := cfg.handlerDestination(args[1])
 	if err != nil {
-		return "", "", err
+		return paths{}, err
 	}
 
-	return src, dest, nil
+	return paths{
+		src:  src,
+		dest: dest,
+	}, nil
 }
 
-func (cfg *Config) parseSrc(path string) error {
-	newPath := filepath.Join(cfg.HomeDir, path)
-
-	ok := filepath.IsAbs(newPath)
-	if !ok {
-		return fmt.Errorf("no such file or directory '%s' found", path)
-	}
-	return nil
+func cleanPath(path string) string {
+	return filepath.Clean(path)
 }
 
-func (cfg *Config) parseDest(path string) error {
-	newPath := filepath.Join(cfg.HomeDir, path)
-
-	var dirPath string
-
-	ok := filepath.IsAbs(newPath)
-	if !ok {
-		err := createPath(newPath)
-		if err != nil {
-			return err
-		}
-
-		fmt.Fprintf(os.Stdout, "create path directory with parents at %s", dirPath)
-	}
-	return nil
-}
-
-func createPath(path string) error {
-	dirPath := filepath.Dir(path)
-
-	err := os.MkdirAll(dirPath, 0750)
+func getAbsPath(path string) (string, error) {
+	absPath, err := filepath.Abs(path)
 	if err != nil {
-		return fmt.Errorf("issue creating destination path %s: %v", dirPath, err)
+		return "", fmt.Errorf("absolute path for %s, not found %v", path, err)
 	}
 
-	// TODO: add verbose here
-
-	return nil
+	return absPath, nil
 }
 
 func handlerError(err error) {

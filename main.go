@@ -17,10 +17,15 @@ func main() {
 	}
 
 	args := os.Args
-	src, dest, err := parseArgs(args[1:], cfg)
+	paths, err := cfg.parseArgs(args[1:])
 	if err != nil {
 		handlerError(err)
 	}
 
-	fmt.Fprintf(os.Stdout, "source provided is %s and the destination is %s\n", src, dest)
+	fmt.Fprintf(os.Stdout, "source provided is %s and the destination is %s\n", paths.src.loc, paths.dest)
+
+	err = cfg.renameFile(paths.src.loc, paths.dest.loc)
+	if err != nil {
+		handlerError(err)
+	}
 }
