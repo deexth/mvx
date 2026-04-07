@@ -12,7 +12,7 @@ type Config struct {
 }
 
 type paths struct {
-	src  Source
+	src  []Source
 	dest Dest
 }
 
@@ -21,12 +21,26 @@ func (cfg *Config) parseArgs(args []string) (paths, error) {
 		return paths{}, errors.New("not enough arguments provided")
 	}
 
-	src, err := cfg.handlerSource(args[0])
-	if err != nil {
-		return paths{}, err
+	var src []Source
+
+	if len(args) > 2 {
+		for _, arg := range args[0 : len(args)-1] {
+			source, err := cfg.handlerSource(arg)
+			if err != nil {
+				return paths{}, err
+			}
+
+			src = append(src, source)
+		}
+	} else {
+		source, err := cfg.handlerSource(args[0])
+		if err != nil {
+			return paths{}, err
+		}
+		src = append(src, source)
 	}
 
-	dest, err := cfg.handlerDestination(args[1])
+	dest, err := cfg.handlerDestination(args[len(args)-1])
 	if err != nil {
 		return paths{}, err
 	}
