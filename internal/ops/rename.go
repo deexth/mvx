@@ -7,7 +7,7 @@ import (
 	"github.com/deexth/mvx/internal/cli"
 )
 
-func renameFile(src, dest string) error {
+func RenameFile(src, dest string) error {
 	destPath, err := cli.GetAbsPath(dest)
 	if err != nil {
 		return err

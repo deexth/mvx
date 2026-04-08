@@ -19,15 +19,9 @@ func main() {
 	}
 
 	args := os.Args
-	Paths, err := cfg.parseArgs(args[1:])
+	_, err = cli.ParseArgs(args[1:], cfg)
 	if err != nil {
-		handlerError(err)
+		cli.HandlerError(err)
 	}
 
-	fmt.Fprintf(os.Stdout, "source provided is %s and the destination is %s\n", Paths.src, paths.dest)
-
-	err = cfg.renameFile(Paths.src, Paths.dest.loc)
-	if err != nil {
-		handlerError(err)
-	}
 }

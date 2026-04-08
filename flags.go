@@ -16,8 +16,8 @@ type Flags struct {
 	f map[string]Flag
 }
 
-func (cfg *cli.Config) initFlags() {
-	laodedFlags := cfg.loadFlags()
+func initFlags(cfg *cli.Config) {
+	laodedFlags := loadFlags(cfg)
 
 	for _, f := range laodedFlags.f {
 		pflag.Func(f.name, f.description, f.callback)
@@ -26,7 +26,7 @@ func (cfg *cli.Config) initFlags() {
 	pflag.Parse()
 }
 
-func (cfg *cli.Config) loadFlags() Flags {
+func loadFlags(cfg *cli.Config) Flags {
 	return Flags{
 		f: map[string]Flag{
 			"tree": Flag{

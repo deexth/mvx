@@ -11,7 +11,7 @@ type Config struct {
 	HomeDir string
 }
 
-func (cfg *Config) parseArgs(args []string) (Paths, error) {
+func ParseArgs(args []string, cfg *Config) (Paths, error) {
 	if len(args) < 2 {
 		return Paths{}, errors.New("not enough arguments provided")
 	}
@@ -20,7 +20,7 @@ func (cfg *Config) parseArgs(args []string) (Paths, error) {
 
 	if len(args) > 2 {
 		for _, arg := range args[0 : len(args)-1] {
-			source, err := cfg.HandlerSource(arg)
+			source, err := handlerSource(arg)
 			if err != nil {
 				return Paths{}, err
 			}
@@ -28,14 +28,14 @@ func (cfg *Config) parseArgs(args []string) (Paths, error) {
 			src = append(src, source)
 		}
 	} else {
-		source, err := cfg.HandlerSource(args[0])
+		source, err := handlerSource(args[0])
 		if err != nil {
 			return Paths{}, err
 		}
 		src = append(src, source)
 	}
 
-	dest, err := cfg.HandlerDestination(args[len(args)-1])
+	dest, err := handlerDestination(args[len(args)-1])
 	if err != nil {
 		return Paths{}, err
 	}

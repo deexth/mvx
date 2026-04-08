@@ -1,16 +1,14 @@
-package main
+package cli
 
 import (
 	"fmt"
 	"os"
 	"path/filepath"
-
-	"github.com/deexth/mvx/internal/cli"
 )
 
-func (cfg *cli.Config) HandlerDestination(path string) (cli.Dest, error) {
-	return cli.Dest{
-		Loc: cli.CleanPath(path),
+func handlerDestination(path string) (Dest, error) {
+	return Dest{
+		Loc: CleanPath(path),
 	}, nil
 }
 
