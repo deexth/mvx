@@ -1,12 +1,14 @@
-package main
+package ops
 
 import (
 	"fmt"
 	"os"
+
+	"github.com/deexth/mvx/internal/cli"
 )
 
-func (cfg *Config) renameFile(src, dest string) error {
-	destPath, err := getAbsPath(dest)
+func renameFile(src, dest string) error {
+	destPath, err := cli.GetAbsPath(dest)
 	if err != nil {
 		return err
 	}

@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/deexth/mvx/internal/cli"
 )
 
-type Dest struct {
-	loc string
-}
-
-func (cfg *Config) handlerDestination(path string) (Dest, error) {
-	return Dest{
-		loc: cleanPath(path),
+func (cfg *Config) handlerDestination(path string) (cli.Dest, error) {
+	return cli.Dest{
+		Loc: cli.CleanPath(path),
 	}, nil
 }
 

@@ -1,4 +1,4 @@
-package main
+package cli
 
 import (
 	"errors"
@@ -7,18 +7,9 @@ import (
 	"path/filepath"
 )
 
-type Config struct {
-	HomeDir string
-}
-
-type paths struct {
-	src  []Source
-	dest Dest
-}
-
-func (cfg *Config) parseArgs(args []string) (paths, error) {
+func (cfg *Config) parseArgs(args []string) (Paths, error) {
 	if len(args) < 2 {
-		return paths{}, errors.New("not enough arguments provided")
+		return Paths{}, errors.New("not enough arguments provided")
 	}
 
 	var src []Source
@@ -27,7 +18,7 @@ func (cfg *Config) parseArgs(args []string) (paths, error) {
 		for _, arg := range args[0 : len(args)-1] {
 			source, err := cfg.handlerSource(arg)
 			if err != nil {
-				return paths{}, err
+				return Paths{}, err
 			}
 
 			src = append(src, source)
@@ -35,27 +26,27 @@ func (cfg *Config) parseArgs(args []string) (paths, error) {
 	} else {
 		source, err := cfg.handlerSource(args[0])
 		if err != nil {
-			return paths{}, err
+			return Paths{}, err
 		}
 		src = append(src, source)
 	}
 
 	dest, err := cfg.handlerDestination(args[len(args)-1])
 	if err != nil {
-		return paths{}, err
+		return Paths{}, err
 	}
 
-	return paths{
-		src:  src,
-		dest: dest,
+	return Paths{
+		Src:  src,
+		Dest: dest,
 	}, nil
 }
 
-func cleanPath(path string) string {
+func CleanPath(path string) string {
 	return filepath.Clean(path)
 }
 
-func getAbsPath(path string) (string, error) {
+func GetAbsPath(path string) (string, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return "", fmt.Errorf("absolute path for %s, not found %v", path, err)

@@ -5,6 +5,10 @@ import (
 	"os"
 )
 
+type Config struct {
+	HomeDir string
+}
+
 func main() {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
