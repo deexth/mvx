@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/deexth/mvx/internal/cli"
 	"github.com/deexth/mvx/internal/views"
 	"github.com/spf13/pflag"
 )
@@ -15,7 +16,7 @@ type Flags struct {
 	f map[string]Flag
 }
 
-func (cfg *Config) initFlags() {
+func (cfg *cli.Config) initFlags() {
 	laodedFlags := cfg.loadFlags()
 
 	for _, f := range laodedFlags.f {
@@ -25,7 +26,7 @@ func (cfg *Config) initFlags() {
 	pflag.Parse()
 }
 
-func (cfg *Config) loadFlags() Flags {
+func (cfg *cli.Config) loadFlags() Flags {
 	return Flags{
 		f: map[string]Flag{
 			"tree": Flag{

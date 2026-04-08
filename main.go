@@ -3,11 +3,9 @@ package main
 import (
 	"fmt"
 	"os"
-)
 
-type Config struct {
-	HomeDir string
-}
+	"github.com/deexth/mvx/internal/cli"
+)
 
 func main() {
 	homeDir, err := os.UserHomeDir()
@@ -16,7 +14,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	cfg := &Config{
+	cfg := &cli.Config{
 		HomeDir: homeDir,
 	}
 

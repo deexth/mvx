@@ -8,7 +8,7 @@ import (
 	"github.com/deexth/mvx/internal/cli"
 )
 
-func (cfg *Config) handlerDestination(path string) (cli.Dest, error) {
+func (cfg *cli.Config) HandlerDestination(path string) (cli.Dest, error) {
 	return cli.Dest{
 		Loc: cli.CleanPath(path),
 	}, nil

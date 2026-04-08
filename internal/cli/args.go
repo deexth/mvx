@@ -7,6 +7,10 @@ import (
 	"path/filepath"
 )
 
+type Config struct {
+	HomeDir string
+}
+
 func (cfg *Config) parseArgs(args []string) (Paths, error) {
 	if len(args) < 2 {
 		return Paths{}, errors.New("not enough arguments provided")
@@ -16,7 +20,7 @@ func (cfg *Config) parseArgs(args []string) (Paths, error) {
 
 	if len(args) > 2 {
 		for _, arg := range args[0 : len(args)-1] {
-			source, err := cfg.handlerSource(arg)
+			source, err := cfg.HandlerSource(arg)
 			if err != nil {
 				return Paths{}, err
 			}
@@ -24,14 +28,14 @@ func (cfg *Config) parseArgs(args []string) (Paths, error) {
 			src = append(src, source)
 		}
 	} else {
-		source, err := cfg.handlerSource(args[0])
+		source, err := cfg.HandlerSource(args[0])
 		if err != nil {
 			return Paths{}, err
 		}
 		src = append(src, source)
 	}
 
-	dest, err := cfg.handlerDestination(args[len(args)-1])
+	dest, err := cfg.HandlerDestination(args[len(args)-1])
 	if err != nil {
 		return Paths{}, err
 	}
@@ -55,7 +59,7 @@ func GetAbsPath(path string) (string, error) {
 	return absPath, nil
 }
 
-func handlerError(err error) {
+func HandlerError(err error) {
 	fmt.Fprintln(os.Stderr, err)
 	fmt.Fprintln(os.Stdout, "Try 'mvx --help' for more info.")
 	os.Exit(1)
