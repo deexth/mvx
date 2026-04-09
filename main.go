@@ -19,9 +19,14 @@ func main() {
 	}
 
 	args := os.Args
-	_, err = cli.ParseArgs(args[1:], cfg)
+	paths, err := cli.ParseArgs(args[1:], cfg)
 	if err != nil {
 		cli.HandlerError(err)
 	}
 
+	cfg.PathArgs = paths
+
+	if err = actions(cfg); err != nil {
+		cli.HandlerError(err)
+	}
 }

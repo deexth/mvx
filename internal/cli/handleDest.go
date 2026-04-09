@@ -12,6 +12,12 @@ func handlerDestination(path string) (Dest, error) {
 	}, nil
 }
 
+func cleanDest(path string) Dest {
+	return Dest{
+		Loc: CleanPath(path),
+	}
+}
+
 func createPath(path string) error {
 	dirPath := filepath.Dir(path)
 

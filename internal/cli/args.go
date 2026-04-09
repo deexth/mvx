@@ -8,7 +8,8 @@ import (
 )
 
 type Config struct {
-	HomeDir string
+	HomeDir  string
+	PathArgs Paths
 }
 
 func ParseArgs(args []string, cfg *Config) (Paths, error) {
@@ -35,10 +36,7 @@ func ParseArgs(args []string, cfg *Config) (Paths, error) {
 		src = append(src, source)
 	}
 
-	dest, err := handlerDestination(args[len(args)-1])
-	if err != nil {
-		return Paths{}, err
-	}
+	dest := cleanDest(args[len(args)-1])
 
 	return Paths{
 		Src:  src,

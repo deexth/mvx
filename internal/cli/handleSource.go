@@ -6,19 +6,18 @@ import (
 )
 
 func handlerSource(path string) (Source, error) {
-	cleanSrc := CleanPath(path)
-	absPath, err := GetAbsPath(cleanSrc)
+	absPath, err := GetAbsPath(path)
 	if err != nil {
 		return Source{}, err
 	}
 
 	srcInfo, err := os.Stat(absPath)
 	if err != nil {
-		return Source{}, fmt.Errorf("unable to get path info '%s': %v", cleanSrc, err)
+		return Source{}, fmt.Errorf("unable to get path info '%s': %v", path, err)
 	}
 
 	return Source{
-		Loc:   cleanSrc,
+		Loc:   absPath,
 		Name:  srcInfo.Name(),
 		IsDir: srcInfo.IsDir(),
 	}, nil
