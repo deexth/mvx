@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/deexth/mvx/internal/config"
 	"github.com/deexth/mvx/internal/fs"
 )
 
@@ -40,8 +39,8 @@ func handlerSource(src []string, fs fs.FS) ([]Path, error) {
 	return srcInfos, nil
 }
 
-func handlerDestination(dst string, fs fs.FS, cfg *config.Config) (Path, error) {
-	path := expandPath(dst, cfg.HomeDir)
+func handlerDestination(dst, home string, fs fs.FS) (Path, error) {
+	path := expandPath(dst, home)
 
 	dstInfo, err := fs.Stat(path)
 	if err != nil {

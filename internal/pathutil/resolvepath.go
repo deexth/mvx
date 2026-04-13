@@ -2,13 +2,17 @@
 package pathutil
 
 import (
-	"github.com/deexth/mvx/internal/ops"
+	"path/filepath"
 )
 
-func ResolveDestination(src, dst ops.Path) (string, error) {
-	return "", nil
+func ResolveDestination(src, dst string, dstExists, dstIsDir bool) string {
+	if dstExists && dstIsDir {
+		return filepath.Join(dst, src)
+	}
+
+	return dst
 }
 
-func validateDst(dst ops.Path) (string, error) {
+func ValidateDestination(dstPath string) (string, error) {
 	return "", nil
 }
