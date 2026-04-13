@@ -3,26 +3,35 @@ package config
 
 import (
 	"errors"
+	"os"
 )
 
 type Config struct {
+	HomeDir     string
 	Source      []string
 	Destination string
 }
 
 func NewConfig(args []string) (Config, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return Config{}, err
+	}
+
 	if len(args) < 2 {
 		return Config{}, errors.New("usage: mvx <source>... <destination> ")
 	}
 
 	if len(args) > 2 {
 		return Config{
+			HomeDir:     home,
 			Source:      args[0 : len(args)-1],
 			Destination: args[len(args)-1],
 		}, nil
 	}
 
 	return Config{
+		HomeDir:     home,
 		Source:      []string{args[0]},
 		Destination: args[1],
 	}, nil

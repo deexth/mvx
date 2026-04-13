@@ -4,6 +4,7 @@ package fs
 import (
 	"io"
 	"os"
+	"path/filepath"
 )
 
 type FS interface {
@@ -12,6 +13,8 @@ type FS interface {
 	MkdirAll(path string, perm os.FileMode) error
 	Remove(name string) error
 	Copy(dst io.Writer, src io.Reader) error
+	Abs(path string) (string, error)
+	Dir(string) string
 }
 
 type OSFS struct{}
@@ -39,4 +42,12 @@ func (OSFS) Copy(dst io.Writer, src io.Reader) error {
 	}
 
 	return nil
+}
+
+func (OSFS) Abs(path string) (string, error) {
+	return filepath.Abs(path)
+}
+
+func (OSFS) Dir(path string) string {
+	return filepath.Dir(path)
 }
