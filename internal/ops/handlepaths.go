@@ -3,6 +3,7 @@ package ops
 import (
 	"fmt"
 	iofs "io/fs"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -10,75 +11,64 @@ import (
 	"github.com/deexth/mvx/internal/fs"
 )
 
-type SRC struct {
+type Path struct {
 	FullPath string
-	Name     string
-	Mode     iofs.FileMode
-	isDir    bool
-}
-
-type DST struct {
-	FullPath string
-	Name     string
-	Mode     iofs.FileMode
+	Info     iofs.FileInfo
 	Exists   bool
-	isDir    bool
 }
 
-func handlerSource(src []string, fs fs.FS) ([]SRC, error) {
-	var srcInfos []SRC
+func handlerSource(src []string, fs fs.FS) ([]Path, error) {
+	var srcInfos []Path
 	for _, source := range src {
 		fullSrcPath, err := fs.Abs(source)
 		if err != nil {
-			return []SRC{}, fmt.Errorf("mvx: cannot move '%s': %v", source, err)
+			return []Path{}, fmt.Errorf("mvx: cannot move '%s': %v", source, err)
 		}
 
 		srcInfo, err := fs.Stat(fullSrcPath)
 		if err != nil {
-			return []SRC{}, fmt.Errorf("mv: cannot move '%s': %v", source, err)
+			return []Path{}, fmt.Errorf("mv: cannot move '%s': %v", source, err)
 		}
 
-		srcInfos = append(srcInfos, SRC{
+		srcInfos = append(srcInfos, Path{
 			FullPath: fullSrcPath,
-			Name:     srcInfo.Name(),
-			Mode:     srcInfo.Mode(),
-			isDir:    srcInfo.IsDir(),
+			Info:     srcInfo,
+			Exists:   true,
 		})
 	}
 
 	return srcInfos, nil
 }
 
-func handlerDestination(dst string, fs fs.FS, cfg *config.Config) (DST, error) {
-	newDST := expandPath(dst, cfg.HomeDir)
+func handlerDestination(dst string, fs fs.FS, cfg *config.Config) (Path, error) {
+	path := expandPath(dst, cfg.HomeDir)
 
-	_, err := fs.Abs(dstDir)
+	dstInfo, err := fs.Stat(path)
 	if err != nil {
-		return DST{}, fmt.Errorf("mvx: cannot move to '%s': %v", dst, err)
+		if os.IsNotExist(err) {
+			return Path{
+				FullPath: path,
+				Exists:   false,
+				Info:     nil,
+			}, nil
+		}
+		return Path{}, fmt.Errorf("mvx: cannot move to '%s': %v", path, err)
 	}
 
-	fullPath := filepath.Join(cfg.HomeDir, newDST)
-	dstInfo, err := fs.Stat(fullPath)
-	if err != nil {
-		return DST{}, fmt.Errorf("mvx: cannot move to '%s': %v", newDST, err)
-	}
-
-	return DST{
-		FullPath: fullPath,
-		Name:     dstInfo.Name(),
-		Mode:     dstInfo.Mode(),
+	return Path{
+		FullPath: path,
+		Info:     dstInfo,
 		Exists:   true,
-		isDir:    dstInfo.IsDir(),
 	}, nil
 
 }
 
 func expandPath(path string, home string) string {
-	ok := strings.HasPrefix(path, "~")
-	if !ok {
-		return filepath.Join(home, path)
+	if path == "~" {
+		return home
 	}
 
-	newpath := strings.Split(path, "~")
-	return filepath.Join(home, newpath[1])
+	newPath, _ := strings.CutPrefix(path, "~/")
+
+	return filepath.Join(home, newPath)
 }
