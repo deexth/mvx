@@ -13,8 +13,26 @@ type MoveOptions struct {
 }
 
 func Move(cfg *config.Config, ops MoveOptions, fs fs.FS) error {
-	if len(cfg.Source) > 1 {
-
+	switch ops {
+	case MoveOptions{
+		true,
+		false,
+		false,
+	}:
+		return nil
+	case MoveOptions{
+		false,
+		true,
+		false,
+	}:
+		return nil
+	case MoveOptions{
+		false,
+		false,
+		true,
+	}:
+		return nil
+	default:
+		return nil
 	}
-	return nil
 }

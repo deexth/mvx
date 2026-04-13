@@ -1,13 +1,17 @@
 // Package fs is a miner wrapper arround os
 package fs
 
-import "os"
+import (
+	"io"
+	"os"
+)
 
 type FS interface {
 	Stat(name string) (os.FileInfo, error)
 	Rename(oldName, newName string) error
 	MkdirAll(path string, perm os.FileMode) error
 	Remove(name string) error
+	Copy(dst io.Writer, src io.Reader) error
 }
 
 type OSFS struct{}
@@ -26,4 +30,13 @@ func (OSFS) MkdirAll(path string, perm os.FileMode) error {
 
 func (OSFS) Remove(name string) error {
 	return os.Remove(name)
+}
+
+func (OSFS) Copy(dst io.Writer, src io.Reader) error {
+	_, err := io.Copy(dst, src)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
