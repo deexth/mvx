@@ -4,7 +4,6 @@ package ops
 import (
 	"github.com/deexth/mvx/internal/config"
 	"github.com/deexth/mvx/internal/fs"
-	pu "github.com/deexth/mvx/internal/pathutil"
 )
 
 type MoveOptions struct {
@@ -13,7 +12,7 @@ type MoveOptions struct {
 	Parents bool
 }
 
-func Move(cfg *config.Config, ops MoveOptions, fs fs.FS) error {
+func Move(cfg *config.Config, opts MoveOptions, fs fs.FS) error {
 	// switch ops {
 	// case MoveOptions{
 	// 	true,
@@ -48,12 +47,16 @@ func Move(cfg *config.Config, ops MoveOptions, fs fs.FS) error {
 	}
 
 	for _, src := range srcs {
-		finalDst := pu.ResolveDestination(
-			src.Info.Name(),
-			dst.FullPath,
-			dst.Exists,
-			dst.Info.IsDir(),
+
+		finalDst := resolveDestination(
+			src,
+			dst,
 		)
+
+		err = fs.Rename(src.FullPath, finalDst)
+		if err != nil {
+			return err
+		}
 
 	}
 

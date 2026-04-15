@@ -9,7 +9,7 @@ import (
 
 type FS interface {
 	Stat(name string) (os.FileInfo, error)
-	Rename(oldName, newName string) error
+	Rename(oldPath, newPath string) error
 	MkdirAll(path string, perm os.FileMode) error
 	Remove(name string) error
 	Copy(dst io.Writer, src io.Reader) error
@@ -23,8 +23,8 @@ func (OSFS) Stat(name string) (os.FileInfo, error) {
 	return os.Stat(name)
 }
 
-func (OSFS) Rename(oldName, newName string) error {
-	return os.Rename(oldName, newName)
+func (OSFS) Rename(oldPath, newPath string) error {
+	return os.Rename(oldPath, newPath)
 }
 
 func (OSFS) MkdirAll(path string, perm os.FileMode) error {

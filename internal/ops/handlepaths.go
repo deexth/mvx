@@ -2,72 +2,69 @@ package ops
 
 import (
 	"fmt"
-	iofs "io/fs"
 	"os"
-	"path/filepath"
-	"strings"
 
 	"github.com/deexth/mvx/internal/fs"
 )
 
+type SRC struct {
+	Name string
+	Path
+}
+
+type DST struct {
+	Path
+}
+
 type Path struct {
 	FullPath string
-	Info     iofs.FileInfo
+	IsDir    bool
 	Exists   bool
 }
 
-func handlerSource(src []string, fs fs.FS) ([]Path, error) {
-	var srcInfos []Path
+func handlerSource(src []string, fs fs.FS) ([]SRC, error) {
+	var srcInfos []SRC
 	for _, source := range src {
 		fullSrcPath, err := fs.Abs(source)
 		if err != nil {
-			return []Path{}, fmt.Errorf("mvx: cannot move '%s': %v", source, err)
+			return []SRC{}, fmt.Errorf("mvx: cannot move '%s': %v", source, err)
 		}
 
 		srcInfo, err := fs.Stat(fullSrcPath)
 		if err != nil {
-			return []Path{}, fmt.Errorf("mv: cannot move '%s': %v", source, err)
+			return []SRC{}, fmt.Errorf("mv: cannot move '%s': %v", source, err)
 		}
 
-		srcInfos = append(srcInfos, Path{
-			FullPath: fullSrcPath,
-			Info:     srcInfo,
-			Exists:   true,
+		srcInfos = append(srcInfos, SRC{
+			Name: srcInfo.Name(),
+			Path: Path{
+				FullPath: fullSrcPath,
+				IsDir:    srcInfo.IsDir(),
+				Exists:   true,
+			},
 		})
 	}
 
 	return srcInfos, nil
 }
 
-func handlerDestination(dst, home string, fs fs.FS) (Path, error) {
+func handlerDestination(dst, home string, fs fs.FS) (DST, error) {
 	path := expandPath(dst, home)
+	fmt.Fprintf(os.Stdout, "path after expand: %s", path)
 
 	dstInfo, err := fs.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return Path{
-				FullPath: path,
-				Exists:   false,
-				Info:     nil,
-			}, nil
+			return validateDestination(path, fs, false)
 		}
-		return Path{}, fmt.Errorf("mvx: cannot move to '%s': %v", path, err)
+		return DST{}, fmt.Errorf("mvx: cannot move to '%s': %v", path, err)
 	}
 
-	return Path{
-		FullPath: path,
-		Info:     dstInfo,
-		Exists:   true,
-	}, nil
+	return DST{
+		Path: Path{
+			FullPath: path,
+			IsDir:    dstInfo.IsDir(),
+			Exists:   true,
+		}}, nil
 
-}
-
-func expandPath(path string, home string) string {
-	if path == "~" {
-		return home
-	}
-
-	newPath, _ := strings.CutPrefix(path, "~/")
-
-	return filepath.Join(home, newPath)
 }

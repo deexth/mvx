@@ -3,7 +3,7 @@ package config
 
 import (
 	"errors"
-	"os"
+	"path/filepath"
 )
 
 type Config struct {
@@ -13,7 +13,7 @@ type Config struct {
 }
 
 func NewConfig(args []string) (Config, error) {
-	home, err := os.UserHomeDir()
+	home, err := filepath.Abs(".")
 	if err != nil {
 		return Config{}, err
 	}
