@@ -9,7 +9,7 @@ import (
 	"github.com/deexth/mvx/internal/fs"
 )
 
-func resolveDestination(src SRC, dst DST) string {
+func ResolveDestination(src SRC, dst DST) string {
 	if dst.Exists && dst.IsDir {
 		path := filepath.Join(dst.FullPath, src.Name)
 		fmt.Fprintf(os.Stdout, "mvx: moving to '%s'", path)

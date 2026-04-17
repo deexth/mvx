@@ -22,7 +22,7 @@ type Path struct {
 	Exists   bool
 }
 
-func handlerSource(src []string, fs fs.FS) ([]SRC, error) {
+func HandlerSource(src []string, fs fs.FS) ([]SRC, error) {
 	var srcInfos []SRC
 	for _, source := range src {
 		fullSrcPath, err := fs.Abs(source)
@@ -48,7 +48,7 @@ func handlerSource(src []string, fs fs.FS) ([]SRC, error) {
 	return srcInfos, nil
 }
 
-func handlerDestination(dst, home string, fs fs.FS) (DST, error) {
+func HandlerDestination(dst, home string, fs fs.FS) (DST, error) {
 	path := expandPath(dst, home)
 	fmt.Fprintf(os.Stdout, "path after expand: %s", path)
 

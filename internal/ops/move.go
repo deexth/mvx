@@ -36,19 +36,19 @@ func Move(cfg *config.Config, opts MoveOptions, fs fs.FS) error {
 	// 	return nil
 	// }
 
-	srcs, err := handlerSource(cfg.Source, fs)
+	srcs, err := HandlerSource(cfg.Source, fs)
 	if err != nil {
 		return err
 	}
 
-	dst, err := handlerDestination(cfg.Destination, cfg.HomeDir, fs)
+	dst, err := HandlerDestination(cfg.Destination, cfg.HomeDir, fs)
 	if err != nil {
 		return err
 	}
 
 	for _, src := range srcs {
 
-		finalDst := resolveDestination(
+		finalDst := ResolveDestination(
 			src,
 			dst,
 		)
