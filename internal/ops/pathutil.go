@@ -2,7 +2,6 @@ package ops
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -12,7 +11,6 @@ import (
 func ResolveDestination(src SRC, dst DST) string {
 	if dst.Exists && dst.IsDir {
 		path := filepath.Join(dst.FullPath, src.Name)
-		fmt.Fprintf(os.Stdout, "mvx: moving to '%s'", path)
 		return path
 	}
 
@@ -34,12 +32,12 @@ func validateDestination(dstPath string, fs fs.FS, createParent bool) (DST, erro
 
 }
 
-func expandPath(path string, home string) string {
+func expandPath(path string, cwd string) string {
 	if path == "~" {
-		return home
+		return cwd
 	}
 
 	newPath, _ := strings.CutPrefix(path, "~/")
 
-	return filepath.Join(home, newPath)
+	return filepath.Join(cwd, newPath)
 }

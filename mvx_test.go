@@ -10,52 +10,94 @@ import (
 	"github.com/deexth/mvx/internal/ops"
 )
 
-func TestMoveFileIntoExistinDir(t *testing.T) {
-	tmp := t.TempDir()
-
-	srcFile := filepath.Join(tmp, "a.txt")
-	err := os.WriteFile(srcFile, []byte("This is a test file, hello!"), 0o644)
-	if err != nil {
-		t.Fatal(err)
+func TestMVXBasicMVFunctionality(t *testing.T) {
+	cases := []struct {
+		name        string
+		setup       func(root string) (src []string, dst string)
+		expectedErr bool
+		validate    func(t *testing.T, root string)
+	}{
+		{
+			name: "renaming file",
+			setup: func(root string) (src []string, dst string) {
+				os.WriteFile(filepath.Join(root, "a.txt"), []byte("This is a test file!"), 0o644)
+				return []string{"a.txt"}, "baz.txt"
+			},
+			expectedErr: false,
+			validate: func(t *testing.T, root string) {
+				if _, err := os.Stat(filepath.Join(root, "baz.txt")); err != nil {
+					t.Fatalf("file not renamed: %v", err)
+				}
+			},
+		},
+		{
+			name: "moving file into existing directory",
+			setup: func(root string) (src []string, dst string) {
+				os.WriteFile(filepath.Join(root, "a.txt"), []byte("This is a test file!"), 0o644)
+				os.Mkdir(filepath.Join(root, "foo"), 0o755)
+				return []string{"a.txt"}, "foo"
+			},
+			expectedErr: false,
+			validate: func(t *testing.T, root string) {
+				if _, err := os.Stat(filepath.Join(root, "foo", "a.txt")); err != nil {
+					t.Fatalf("file not moved: %v", err)
+				}
+			},
+		},
+		{
+			name: "create nested destination",
+			setup: func(root string) (src []string, dst string) {
+				os.WriteFile(filepath.Join(root, "a.txt"), []byte("This is a test file!"), 0o644)
+				return []string{"a.txt"}, "foo/bar/baz.txt"
+			},
+			expectedErr: true,
+			validate: func(t *testing.T, root string) {
+				if _, err := os.Stat(filepath.Join(root, "foo", "bar", "baz.txt")); err != nil {
+					t.Fatalf("nested move failed: %v", err)
+				}
+			},
+		},
+		{
+			name: "mutliple sources to a file destination",
+			setup: func(root string) (src []string, dst string) {
+				os.WriteFile(filepath.Join(root, "a.txt"), []byte("hi"), 0o644)
+				os.WriteFile(filepath.Join(root, "b.txt"), []byte("hi"), 0o644)
+				return []string{"a.txt", "b.txt"}, "target.txt"
+			},
+			expectedErr: true,
+		},
 	}
 
-	dstDir := filepath.Join(tmp, "dir")
-	err = os.Mkdir(dstDir, 0o755)
-	if err != nil {
-		t.Fatal(err)
+	for _, tt := range cases {
+		t.Run(tt.name, func(t *testing.T) {
+			root := t.TempDir()
+			cwd, _ := os.Getwd()
+			os.Chdir(root)
+			defer os.Chdir(cwd)
+
+			fS := fs.OSFS{}
+			cfg := config.Config{
+				CWD: root,
+			}
+			src, dst := tt.setup(root)
+			cfg.Source = src
+			cfg.Destination = dst
+
+			err := ops.Move(&cfg, ops.MoveOptions{}, fS)
+
+			if tt.expectedErr && err == nil {
+				t.Fatal("expected an err and got nil")
+			}
+
+			if !tt.expectedErr && err != nil {
+				t.Fatal(err)
+			}
+
+			if tt.validate != nil {
+				tt.validate(t, root)
+			}
+		})
+
 	}
 
-	fS := fs.OSFS{}
-
-	cfg := config.Config{
-		HomeDir: tmp,
-	}
-
-	srcs, err := ops.HandlerSource([]string{srcFile}, fS)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	dst, err := ops.HandlerDestination(dstDir, cfg.HomeDir, fS)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	finalDst := ops.ResolveDestination(srcs[0], dst)
-
-	err = fS.Rename(srcs[0].FullPath, finalDst)
-	if err != nil {
-		t.Fatal(err)
-	}
-
-	// original file should NOT exist
-	if _, err := os.Stat(srcFile); !os.IsNotExist(err) {
-		t.Fatalf("expected source to be moved, but it still exists")
-	}
-
-	// new file should exist
-	expectedPath := filepath.Join(dstDir, "a.txt")
-	if _, err := os.Stat(expectedPath); err != nil {
-		t.Fatalf("expected file at destination, got error: %v", err)
-	}
 }

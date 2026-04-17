@@ -41,7 +41,7 @@ func Move(cfg *config.Config, opts MoveOptions, fs fs.FS) error {
 		return err
 	}
 
-	dst, err := HandlerDestination(cfg.Destination, cfg.HomeDir, fs)
+	dst, err := HandlerDestination(cfg.Destination, cfg.CWD, fs)
 	if err != nil {
 		return err
 	}

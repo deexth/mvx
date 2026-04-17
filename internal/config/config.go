@@ -3,17 +3,17 @@ package config
 
 import (
 	"errors"
-	"path/filepath"
+	"os"
 )
 
 type Config struct {
-	HomeDir     string
+	CWD         string
 	Source      []string
 	Destination string
 }
 
 func NewConfig(args []string) (Config, error) {
-	home, err := filepath.Abs(".")
+	cwd, err := os.Getwd()
 	if err != nil {
 		return Config{}, err
 	}
@@ -24,14 +24,14 @@ func NewConfig(args []string) (Config, error) {
 
 	if len(args) > 2 {
 		return Config{
-			HomeDir:     home,
+			CWD:         cwd,
 			Source:      args[0 : len(args)-1],
 			Destination: args[len(args)-1],
 		}, nil
 	}
 
 	return Config{
-		HomeDir:     home,
+		CWD:         cwd,
 		Source:      []string{args[0]},
 		Destination: args[1],
 	}, nil

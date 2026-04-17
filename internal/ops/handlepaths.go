@@ -48,9 +48,8 @@ func HandlerSource(src []string, fs fs.FS) ([]SRC, error) {
 	return srcInfos, nil
 }
 
-func HandlerDestination(dst, home string, fs fs.FS) (DST, error) {
-	path := expandPath(dst, home)
-	fmt.Fprintf(os.Stdout, "path after expand: %s", path)
+func HandlerDestination(dst, cwd string, fs fs.FS) (DST, error) {
+	path := expandPath(dst, cwd)
 
 	dstInfo, err := fs.Stat(path)
 	if err != nil {
