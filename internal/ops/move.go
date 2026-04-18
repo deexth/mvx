@@ -2,6 +2,8 @@
 package ops
 
 import (
+	"errors"
+
 	"github.com/deexth/mvx/internal/config"
 	"github.com/deexth/mvx/internal/fs"
 )
@@ -44,6 +46,10 @@ func Move(cfg *config.Config, opts MoveOptions, fs fs.FS) error {
 	dst, err := HandlerDestination(cfg.Destination, cfg.CWD, fs)
 	if err != nil {
 		return err
+	}
+
+	if len(srcs) > 1 && !dst.IsDir {
+		return errors.New("mvx: cannot move to '%s': target not a directory")
 	}
 
 	for _, src := range srcs {

@@ -2,6 +2,7 @@ package ops
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -9,7 +10,7 @@ import (
 )
 
 func ResolveDestination(src SRC, dst DST) string {
-	if dst.Exists && dst.IsDir {
+	if dst.IsDir {
 		path := filepath.Join(dst.FullPath, src.Name)
 		return path
 	}
@@ -26,18 +27,25 @@ func validateDestination(dstPath string, fs fs.FS, createParent bool) (DST, erro
 
 	return DST{
 		Path: Path{FullPath: dstPath,
-			Exists: true,
+			Exists: false,
 			IsDir:  false,
 		}}, nil
 
 }
 
-func expandPath(path string, cwd string) string {
-	if path == "~" {
-		return cwd
+func expandPath(path string, cwd string) (string, error) {
+	if path == "~" || strings.HasPrefix(path, "~/") {
+		return filepath.Abs(path)
 	}
 
-	newPath, _ := strings.CutPrefix(path, "~/")
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
 
-	return filepath.Join(cwd, newPath)
+	if strings.HasPrefix(path, home) {
+		return path, nil
+	}
+
+	return filepath.Join(cwd, path), nil
 }

@@ -8,12 +8,13 @@ import (
 )
 
 type FS interface {
-	Stat(name string) (os.FileInfo, error)
+	Stat(string) (os.FileInfo, error)
+	Lstat(string) (os.FileInfo, error)
 	Rename(oldPath, newPath string) error
 	MkdirAll(path string, perm os.FileMode) error
-	Remove(name string) error
+	Remove(string) error
 	Copy(dst io.Writer, src io.Reader) error
-	Abs(path string) (string, error)
+	Abs(string) (string, error)
 	Dir(string) string
 }
 
@@ -21,6 +22,10 @@ type OSFS struct{}
 
 func (OSFS) Stat(name string) (os.FileInfo, error) {
 	return os.Stat(name)
+}
+
+func (OSFS) Lstat(name string) (os.FileInfo, error) {
+	return os.Lstat(name)
 }
 
 func (OSFS) Rename(oldPath, newPath string) error {

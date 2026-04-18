@@ -30,7 +30,7 @@ func HandlerSource(src []string, fs fs.FS) ([]SRC, error) {
 			return []SRC{}, fmt.Errorf("mvx: cannot move '%s': %v", source, err)
 		}
 
-		srcInfo, err := fs.Stat(fullSrcPath)
+		srcInfo, err := fs.Lstat(fullSrcPath)
 		if err != nil {
 			return []SRC{}, fmt.Errorf("mv: cannot move '%s': %v", source, err)
 		}
@@ -49,7 +49,10 @@ func HandlerSource(src []string, fs fs.FS) ([]SRC, error) {
 }
 
 func HandlerDestination(dst, cwd string, fs fs.FS) (DST, error) {
-	path := expandPath(dst, cwd)
+	path, err := expandPath(dst, cwd)
+	if err != nil {
+		return DST{}, fmt.Errorf("mvx: cannot move to '%s': %v", dst, err)
+	}
 
 	dstInfo, err := fs.Stat(path)
 	if err != nil {
