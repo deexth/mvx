@@ -51,11 +51,6 @@ func TestMVXBasicMVFunctionality(t *testing.T) {
 				return []string{"a.txt"}, "foo/bar/baz.txt"
 			},
 			expectedErr: true,
-			validate: func(t *testing.T, root string) {
-				if _, err := os.Stat(filepath.Join(root, "foo", "bar", "baz.txt")); err != nil {
-					t.Fatalf("nested move failed: %v", err)
-				}
-			},
 		},
 		{
 			name: "mutliple sources to a file destination",
@@ -66,12 +61,42 @@ func TestMVXBasicMVFunctionality(t *testing.T) {
 			},
 			expectedErr: true,
 		},
+		{
+			name: "tilde as destination or prefix",
+			setup: func(root string) (src []string, dst string) {
+				os.WriteFile(filepath.Join(root, "a.txt"), []byte("This is a test file!"), 0o644)
+				return []string{"a.txt"}, "~"
+			},
+			expectedErr: false,
+			validate: func(t *testing.T, root string) {
+				if _, err := os.Stat(filepath.Join(root, "a.txt")); err != nil {
+					t.Fatalf("file not moved: %v", err)
+				}
+			},
+		},
+		{
+			name: "tilde as prefix",
+			setup: func(root string) (src []string, dst string) {
+				os.WriteFile(filepath.Join(root, "a.txt"), []byte("This is a test file!"), 0o644)
+				return []string{"a.txt"}, "~/baz.txt"
+			},
+			expectedErr: false,
+			validate: func(t *testing.T, root string) {
+				if _, err := os.Stat(filepath.Join(root, "baz.txt")); err != nil {
+					t.Fatalf("file not moved: %v", err)
+				}
+			},
+		},
 	}
 
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 			root := t.TempDir()
 			cwd, _ := os.Getwd()
+
+			// Overide HOME
+			t.Setenv("HOME", root)
+
 			os.Chdir(root)
 			defer os.Chdir(cwd)
 

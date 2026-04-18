@@ -2,6 +2,7 @@ package ops
 
 import (
 	"fmt"
+	iofs "io/fs"
 	"os"
 
 	"github.com/deexth/mvx/internal/fs"
@@ -9,6 +10,7 @@ import (
 
 type SRC struct {
 	Name string
+	Perm iofs.FileMode
 	Path
 }
 
@@ -37,6 +39,7 @@ func HandlerSource(src []string, fs fs.FS) ([]SRC, error) {
 
 		srcInfos = append(srcInfos, SRC{
 			Name: srcInfo.Name(),
+			Perm: srcInfo.Mode().Perm(),
 			Path: Path{
 				FullPath: fullSrcPath,
 				IsDir:    srcInfo.IsDir(),
