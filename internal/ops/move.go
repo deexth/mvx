@@ -8,25 +8,12 @@ import (
 	"os"
 	"syscall"
 
+	"github.com/deexth/mvx/internal/cli"
 	"github.com/deexth/mvx/internal/config"
 	"github.com/deexth/mvx/internal/fs"
 )
 
-type MoveOptions struct {
-	NoClobber   bool
-	Interactive bool
-	Verbose     bool
-	Update      bool
-	Force       bool
-	Tree        bool
-	Preview     bool
-	Diff        bool
-	Help        bool
-	Copy        bool
-	Parents     bool
-}
-
-func Move(cfg *config.Config, opts MoveOptions, fs fs.FS) error {
+func Move(cfg *config.Config, opts cli.MoveOptions, fs fs.FS) error {
 	// switch ops {
 	// case MoveOptions{
 	// 	true,
@@ -49,7 +36,14 @@ func Move(cfg *config.Config, opts MoveOptions, fs fs.FS) error {
 	// default:
 	// 	return nil
 	// }
+	err := handlerMove(cfg, fs)
+	if err != nil {
+		return err
+	}
+	return nil
+}
 
+func handlerMove(cfg *config.Config, fs fs.FS) error {
 	srcs, err := HandlerSource(cfg.Source, fs)
 	if err != nil {
 		return err

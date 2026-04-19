@@ -5,6 +5,7 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/deexth/mvx/internal/cli"
 	"github.com/deexth/mvx/internal/config"
 	"github.com/deexth/mvx/internal/fs"
 	"github.com/deexth/mvx/internal/ops"
@@ -108,7 +109,7 @@ func TestMVXBasicMVFunctionality(t *testing.T) {
 			cfg.Source = src
 			cfg.Destination = dst
 
-			err := ops.Move(&cfg, ops.MoveOptions{}, fS)
+			err := ops.Move(&cfg, cli.MoveOptions{}, fS)
 
 			if tt.expectedErr && err == nil {
 				t.Fatal("expected an err and got nil")

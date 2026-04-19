@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/deexth/mvx/internal/cli"
 	"github.com/deexth/mvx/internal/config"
 	"github.com/deexth/mvx/internal/fs"
 	"github.com/deexth/mvx/internal/ops"
@@ -18,7 +19,7 @@ func main() {
 		os.Exit(1)
 	}
 
-	err = ops.Move(&cfg, ops.MoveOptions{}, fs.OSFS{})
+	err = ops.Move(&cfg, cli.MoveOptions{}, fs.OSFS{})
 	if err != nil {
 		fmt.Fprint(os.Stderr, err)
 		os.Exit(1)
