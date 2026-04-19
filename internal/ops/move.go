@@ -13,9 +13,17 @@ import (
 )
 
 type MoveOptions struct {
-	Copy    bool
-	Force   bool
-	Parents bool
+	NoClobber   bool
+	Interactive bool
+	Verbose     bool
+	Update      bool
+	Force       bool
+	Tree        bool
+	Preview     bool
+	Diff        bool
+	Help        bool
+	Copy        bool
+	Parents     bool
 }
 
 func Move(cfg *config.Config, opts MoveOptions, fs fs.FS) error {
