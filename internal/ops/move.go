@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 	"syscall"
 
 	"github.com/deexth/mvx/internal/cli"
@@ -32,6 +33,11 @@ func Move(cfg *config.Config, opts cli.MoveOptions, fs fs.FS) error {
 
 func handlerMove(opts cli.MoveOptions, srcs []SRC, dst DST, fs fs.FS) error {
 	for _, src := range srcs {
+		if src.FullPath == dst.FullPath && dst.Exists {
+			// TODO: handle if the path is the same
+			// for both a file and dir
+			continue
+		}
 
 		finalDst := ResolveDestination(
 			src,
@@ -40,13 +46,16 @@ func handlerMove(opts cli.MoveOptions, srcs []SRC, dst DST, fs fs.FS) error {
 
 		if opts.NoClobber {
 			if _, err := fs.Stat(finalDst); err == nil {
+				fmt.Fprintln(os.Stdout, "destination file exists")
 				continue
 			}
 		}
 
 		if opts.Interactive && !opts.Force {
 			if _, err := fs.Stat(finalDst); err == nil {
-				opts.Interact()
+				if resp := opts.Interact(dst.Name); strings.ToLower(resp) != "y" {
+					continue
+				}
 			}
 		}
 

@@ -4,13 +4,14 @@ import (
 	"fmt"
 	iofs "io/fs"
 	"os"
+	"time"
 
 	"github.com/deexth/mvx/internal/fs"
 )
 
 type SRC struct {
-	Name string
-	Perm iofs.FileMode
+	ModTime time.Time
+	Perm    iofs.FileMode
 	Path
 }
 
@@ -20,6 +21,7 @@ type DST struct {
 
 type Path struct {
 	FullPath string
+	Name     string
 	IsDir    bool
 	Exists   bool
 }
@@ -38,10 +40,11 @@ func HandlerSource(src []string, fs fs.FS) ([]SRC, error) {
 		}
 
 		srcInfos = append(srcInfos, SRC{
-			Name: srcInfo.Name(),
-			Perm: srcInfo.Mode().Perm(),
+			ModTime: srcInfo.ModTime(),
+			Perm:    srcInfo.Mode().Perm(),
 			Path: Path{
 				FullPath: fullSrcPath,
+				Name:     srcInfo.Name(),
 				IsDir:    srcInfo.IsDir(),
 				Exists:   true,
 			},
@@ -60,7 +63,7 @@ func HandlerDestination(dst, cwd string, fs fs.FS) (DST, error) {
 	dstInfo, err := fs.Stat(path)
 	if err != nil {
 		if os.IsNotExist(err) {
-			return validateDestination(path, fs, false)
+			return validateDestination(path, dst, fs, false)
 		}
 		return DST{}, fmt.Errorf("mvx: cannot move to '%s': %v", path, err)
 	}
@@ -68,6 +71,7 @@ func HandlerDestination(dst, cwd string, fs fs.FS) (DST, error) {
 	return DST{
 		Path: Path{
 			FullPath: path,
+			Name:     dst,
 			IsDir:    dstInfo.IsDir(),
 			Exists:   true,
 		}}, nil

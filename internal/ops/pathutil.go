@@ -18,7 +18,7 @@ func ResolveDestination(src SRC, dst DST) string {
 	return dst.FullPath
 }
 
-func validateDestination(dstPath string, fs fs.FS, createParent bool) (DST, error) {
+func validateDestination(dstPath, dst string, fs fs.FS, createParent bool) (DST, error) {
 	dstDIR := fs.Dir(dstPath)
 	_, err := fs.Stat(dstDIR)
 	if err != nil && !createParent {
@@ -26,9 +26,11 @@ func validateDestination(dstPath string, fs fs.FS, createParent bool) (DST, erro
 	}
 
 	return DST{
-		Path: Path{FullPath: dstPath,
-			Exists: false,
-			IsDir:  false,
+		Path: Path{
+			FullPath: dstPath,
+			Name:     dst,
+			Exists:   false,
+			IsDir:    false,
 		}}, nil
 
 }
