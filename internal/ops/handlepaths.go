@@ -10,8 +10,7 @@ import (
 )
 
 type SRC struct {
-	ModTime time.Time
-	Perm    iofs.FileMode
+	Perm iofs.FileMode
 	Path
 }
 
@@ -22,6 +21,7 @@ type DST struct {
 type Path struct {
 	FullPath string
 	Name     string
+	ModTime  time.Time
 	IsDir    bool
 	Exists   bool
 }
@@ -40,12 +40,12 @@ func HandlerSource(src []string, fs fs.FS) ([]SRC, error) {
 		}
 
 		srcInfos = append(srcInfos, SRC{
-			ModTime: srcInfo.ModTime(),
-			Perm:    srcInfo.Mode().Perm(),
+			Perm: srcInfo.Mode().Perm(),
 			Path: Path{
 				FullPath: fullSrcPath,
 				Name:     srcInfo.Name(),
 				IsDir:    srcInfo.IsDir(),
+				ModTime:  srcInfo.ModTime(),
 				Exists:   true,
 			},
 		})
@@ -72,6 +72,7 @@ func HandlerDestination(dst, cwd string, fs fs.FS) (DST, error) {
 		Path: Path{
 			FullPath: path,
 			Name:     dst,
+			ModTime:  dstInfo.ModTime(),
 			IsDir:    dstInfo.IsDir(),
 			Exists:   true,
 		}}, nil

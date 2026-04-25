@@ -32,6 +32,7 @@ func Move(cfg *config.Config, opts cli.MoveOptions, fs fs.FS) error {
 }
 
 func handlerMove(opts cli.MoveOptions, srcs []SRC, dst DST, fs fs.FS) error {
+	var ntd = false
 	for _, src := range srcs {
 		if src.FullPath == dst.FullPath && dst.Exists {
 			// TODO: handle if the path is the same
@@ -39,9 +40,18 @@ func handlerMove(opts cli.MoveOptions, srcs []SRC, dst DST, fs fs.FS) error {
 			continue
 		}
 
+		if opts.NoTargetDirect && len(srcs) > 2 {
+			return fmt.Errorf("mvx: extra operand '%s'", srcs[2].Name)
+		}
+
+		if opts.NoTargetDirect {
+			ntd = true
+		}
+
 		finalDst := ResolveDestination(
 			src,
 			dst,
+			ntd,
 		)
 
 		if opts.NoClobber {
@@ -60,8 +70,11 @@ func handlerMove(opts cli.MoveOptions, srcs []SRC, dst DST, fs fs.FS) error {
 		}
 
 		if opts.Update {
-			// update files
-			// TODO
+			if _, err := fs.Stat(finalDst); err == nil {
+				if ok := opts.Upd(src.ModTime, src.ModTime); !ok {
+					continue
+				}
+			}
 		}
 
 		if err := move(fs, src, finalDst); err != nil {

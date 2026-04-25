@@ -9,8 +9,8 @@ import (
 	"github.com/deexth/mvx/internal/fs"
 )
 
-func ResolveDestination(src SRC, dst DST) string {
-	if dst.IsDir {
+func ResolveDestination(src SRC, dst DST, ntd bool) string {
+	if dst.IsDir && !ntd {
 		path := filepath.Join(dst.FullPath, src.Name)
 		return path
 	}
