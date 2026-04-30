@@ -9,18 +9,19 @@ type MoveOptions struct {
 	Verbose         bool
 	Update          bool
 	Force           bool
-	Help            bool
-	Tree            bool
-	Preview         bool
-	Diff            bool
-	Copy            bool
-	Parents         bool
 	Backup          bool
 	NoTargetDirect  bool
 	Version         bool
-	Context         bool
 	TargetDirectory bool
 	Suffix          bool
+	Help            bool
+	Context         bool
+	// mvx added flags
+	Tree    bool
+	Preview bool
+	Diff    bool
+	Copy    bool
+	Parents bool
 }
 
 func InitFlags() MoveOptions {
